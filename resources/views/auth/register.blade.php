@@ -1,0 +1,49 @@
+@extends('layouts.guest')
+
+@section('content')
+<div class="auth-card">
+    <div class="auth-logo">
+        <div class="auth-logo-icon"></div>
+        <span class="auth-logo-text">Marcom EJ</span>
+    </div>
+    
+    <h2 class="auth-title">Create an account</h2>
+    
+    @if($errors->any())
+        <div class="alert-danger" style="animation: slideUpFade 0.3s ease-out;">
+            <ul style="margin: 0; padding-left: 20px; font-size: 0.9rem;">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+    
+    <form method="POST" action="{{ route('register') }}">
+        @csrf
+        <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input type="text" name="name" class="form-control" value="{{ old('name') }}" required autofocus placeholder="John Doe">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Email address</label>
+            <input type="email" name="email" class="form-control" value="{{ old('email') }}" required placeholder="name@example.com">
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" name="password" class="form-control" required placeholder="••••••••">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Confirm Password</label>
+            <input type="password" name="password_confirmation" class="form-control" required placeholder="••••••••">
+        </div>
+        
+        <button type="submit" class="btn-primary">Create account</button>
+    </form>
+    
+    <a href="{{ route('login') }}" class="auth-link">Already have an account? Sign in</a>
+</div>
+@endsection
