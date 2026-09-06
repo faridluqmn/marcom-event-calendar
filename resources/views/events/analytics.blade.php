@@ -55,6 +55,7 @@
 <table class="data-table display" id="recentEventsTable" style="width:100%">
     <thead>
         <tr>
+            <th>No.</th>
             <th>Event Name</th>
             <th>Period</th>
             <th>Branch</th>
@@ -69,6 +70,7 @@
     <tbody>
         @foreach($recentEvents as $event)
             <tr>
+                <td>{{ $loop->iteration }}</td>
                 <td>{{ $event->name }}</td>
                 <td>{{ \Carbon\Carbon::parse($event->start_date)->format('F Y') }}</td>
                 <td>{{ $event->branch->name }}</td>
@@ -102,7 +104,7 @@
         @endforeach
         @if($recentEvents->isEmpty())
             <tr>
-                <td colspan="9" style="text-align: center; color: var(--text-secondary);">No recent events found.</td>
+                <td colspan="10" style="text-align: center; color: var(--text-secondary);">No recent events found.</td>
             </tr>
         @endif
     </tbody>
@@ -124,13 +126,26 @@
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script>
     $(document).ready(function() {
-        $('#recentEventsTable').DataTable({
+        var t = $('#recentEventsTable').DataTable({
             "order": [], // Disable initial sorting
             "pageLength": 10,
+            "columnDefs": [{
+                "searchable": false,
+                "orderable": false,
+                "targets": 0
+            }],
             "language": {
                 "search": "Filter events:"
             }
         });
+
+        // Make the 'No.' column truly dynamic and static when sorting
+        t.on('order.dt search.dt', function () {
+            let i = 1;
+            t.cells(null, 0, { search: 'applied', order: 'applied' }).every(function (cell) {
+                this.data(i++);
+            });
+        }).draw();
     });
 </script>
 

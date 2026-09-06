@@ -40,6 +40,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware(\App\Http\Middleware\AdminMiddleware::class)->group(function () {
         Route::get('/events/analytics', [EventController::class, 'analytics'])->name('events.analytics');
         Route::get('/events', [EventController::class, 'index'])->name('events.index');
+        Route::get('/events/regional-calendar', [EventController::class, 'regionalCalendar'])->name('events.regional_calendar');
         
         Route::get('/events/regional', [EventController::class, 'regionalIndex'])->name('events.regional.index');
         Route::post('/events/regional/remove', [EventController::class, 'removeBulkRegional'])->name('events.regional.remove');

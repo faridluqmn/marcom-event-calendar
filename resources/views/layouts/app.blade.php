@@ -32,21 +32,33 @@
                     <span class="nav-icon">📊</span>
                     Dashboard
                 </a>
-                <a href="{{ route('events.index') }}" class="nav-item {{ request()->routeIs('events.index') ? 'active' : '' }}">
-                    <span class="nav-icon">📅</span>
-                    Calendar
-                </a>
+                @php
+                    $isCalendarActive = request()->routeIs('events.index', 'events.regional_calendar');
+                @endphp
+                <div class="nav-group">
+                    <button class="nav-item" onclick="toggleSidebarMenu('calendarMenu', 'calendarArrow')" style="width: 100%; justify-content: space-between; display: flex;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span class="nav-icon">📅</span>
+                            Calendars
+                        </div>
+                        <svg id="calendarArrow" style="transition: transform 0.3s ease; transform: rotate({{ $isCalendarActive ? '180deg' : '0deg' }});" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                    </button>
+                    <div id="calendarMenu" style="display: flex; flex-direction: column; padding-left: 36px; gap: 4px; overflow: hidden; transition: all 0.3s ease; max-height: {{ $isCalendarActive ? '200px' : '0' }}; opacity: {{ $isCalendarActive ? '1' : '0' }}; margin-top: {{ $isCalendarActive ? '4px' : '0' }};">
+                        <a href="{{ route('events.index') }}" class="nav-item {{ request()->routeIs('events.index') ? 'active' : '' }}" style="padding: 8px 16px; font-size: 0.9rem;">
+                            🏢 Branch Calendar
+                        </a>
+                        <a href="{{ route('events.regional_calendar') }}" class="nav-item {{ request()->routeIs('events.regional_calendar') ? 'active' : '' }}" style="padding: 8px 16px; font-size: 0.9rem;">
+                            🌐 Regional Calendar
+                        </a>
+                    </div>
+                </div>
                 <a href="{{ route('events.regional.index') }}" class="nav-item {{ request()->routeIs('events.regional.index') ? 'active' : '' }}">
-                    <span class="nav-icon">🌍</span>
-                    Regional
+                    <span class="nav-icon">📋</span>
+                    Regional List
                 </a>
             </nav>
 
             <div class="sidebar-footer">
-                <a href="#" class="nav-item">
-                    <span class="nav-icon">⚙️</span>
-                    Settings
-                </a>
                 <form method="POST" action="{{ route('logout') }}" class="d-inline">
                     @csrf
                     <button type="submit" class="nav-item btn-logout">
@@ -96,5 +108,24 @@
     </div>
     
     @yield('scripts')
+    
+    <script>
+        function toggleSidebarMenu(menuId, arrowId) {
+            const menu = document.getElementById(menuId);
+            const arrow = document.getElementById(arrowId);
+            
+            if (menu.style.maxHeight === '0px' || menu.style.maxHeight === '0' || menu.style.maxHeight === '') {
+                menu.style.maxHeight = '200px';
+                menu.style.opacity = '1';
+                menu.style.marginTop = '4px';
+                if (arrow) arrow.style.transform = 'rotate(180deg)';
+            } else {
+                menu.style.maxHeight = '0px';
+                menu.style.opacity = '0';
+                menu.style.marginTop = '0px';
+                if (arrow) arrow.style.transform = 'rotate(0deg)';
+            }
+        }
+    </script>
 </body>
 </html>

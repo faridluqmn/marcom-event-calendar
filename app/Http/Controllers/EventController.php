@@ -56,6 +56,10 @@ class EventController extends Controller
                 $q->where('name', $request->brand);
             });
         }
+        
+        if ($request->has('is_regional') && $request->is_regional) {
+            $query->where('is_regional', true);
+        }
 
         $events = $query->orderBy('start_date', 'asc')->get();
 
@@ -96,6 +100,12 @@ class EventController extends Controller
         $marcoms = Marcom::all();
 
         return view('events.index', compact('events', 'marcoms', 'days', 'baseDate', 'hierarchy', 'viewType'));
+    }
+
+    public function regionalCalendar(Request $request)
+    {
+        $request->merge(['is_regional' => true]);
+        return $this->index($request);
     }
 
 

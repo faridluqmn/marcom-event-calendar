@@ -29,21 +29,35 @@
             }
         @endphp
         <div class="view-toggles" style="padding: 2px;">
-            <a href="{{ route('events.index', array_merge(request()->query(), ['date' => $prevDate->format('Y-m-d')])) }}" class="view-btn" style="text-decoration:none;">&lt;</a>
-            <a href="{{ route('events.index', array_merge(request()->query(), ['date' => $nextDate->format('Y-m-d')])) }}" class="view-btn" style="text-decoration:none;">&gt;</a>
+            <a href="{{ route(request()->route()->getName(), array_merge(request()->query(), ['date' => $prevDate->format('Y-m-d')])) }}" class="view-btn" style="text-decoration:none;">&lt;</a>
+            <a href="{{ route(request()->route()->getName(), array_merge(request()->query(), ['date' => $nextDate->format('Y-m-d')])) }}" class="view-btn" style="text-decoration:none;">&gt;</a>
         </div>
         <div class="calendar-title" style="margin: 0;">{{ $viewType == 'week' ? $baseDate->copy()->startOfWeek()->format('M d') . ' - ' . $baseDate->copy()->endOfWeek()->format('M d, Y') : $baseDate->format($titleFormat) }}</div>
+    </div>
+
+    <!-- Center Badge Pill -->
+    <div style="display: flex; align-items: center; justify-content: center;">
+        @if(request()->routeIs('events.regional_calendar'))
+            <span style="background: #eef2ff; color: #4f46e5; border: 1px solid #c7d2fe; font-size: 0.85rem; font-weight: 600; padding: 6px 16px; border-radius: 9999px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
+                🌐 Regional Calendar
+            </span>
+        @else
+            <span style="background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd; font-size: 0.85rem; font-weight: 600; padding: 6px 16px; border-radius: 9999px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
+                🏢 Branch Calendar
+            </span>
+        @endif
     </div>
     
     <div class="calendar-controls">
         <div class="view-toggles">
-            <a href="{{ route('events.index', array_merge(request()->query(), ['view' => 'day'])) }}" class="view-btn {{ $viewType == 'day' ? 'active' : '' }}" style="text-decoration: none;">Day</a>
-            <a href="{{ route('events.index', array_merge(request()->query(), ['view' => 'week'])) }}" class="view-btn {{ $viewType == 'week' ? 'active' : '' }}" style="text-decoration: none;">Week</a>
-            <a href="{{ route('events.index', array_merge(request()->query(), ['view' => 'month'])) }}" class="view-btn {{ $viewType == 'month' ? 'active' : '' }}" style="text-decoration: none;">Month</a>
-            <a href="{{ route('events.index', array_merge(request()->query(), ['view' => 'year'])) }}" class="view-btn {{ $viewType == 'year' ? 'active' : '' }}" style="text-decoration: none;">Year</a>
+            <a href="{{ route(request()->route()->getName(), array_merge(request()->query(), ['view' => 'day'])) }}" class="view-btn {{ $viewType == 'day' ? 'active' : '' }}" style="text-decoration: none;">Day</a>
+            <a href="{{ route(request()->route()->getName(), array_merge(request()->query(), ['view' => 'week'])) }}" class="view-btn {{ $viewType == 'week' ? 'active' : '' }}" style="text-decoration: none;">Week</a>
+            <a href="{{ route(request()->route()->getName(), array_merge(request()->query(), ['view' => 'month'])) }}" class="view-btn {{ $viewType == 'month' ? 'active' : '' }}" style="text-decoration: none;">Month</a>
+            <a href="{{ route(request()->route()->getName(), array_merge(request()->query(), ['view' => 'year'])) }}" class="view-btn {{ $viewType == 'year' ? 'active' : '' }}" style="text-decoration: none;">Year</a>
         </div>
         
         <!-- Custom Nested Dropdown Filter -->
+        @if(!request()->routeIs('events.regional_calendar'))
         <div class="nested-dropdown" id="filterDropdownContainer">
             <button class="dropdown-toggle" onclick="toggleDropdown()" type="button">
                 <span>Filter: {{ request('brand') ?? (request('branch') ?? 'All Events') }}</span>
@@ -51,7 +65,7 @@
             </button>
             
             <div class="dropdown-menu" id="filterDropdownMenu">
-                <a href="{{ route('events.index', ['date' => request('date')]) }}" style="text-decoration: none; color: inherit;">
+                <a href="{{ route(request()->route()->getName(), ['date' => request('date')]) }}" style="text-decoration: none; color: inherit;">
                     <div class="dropdown-item">All Events</div>
                 </a>
                 <hr style="border-top: 1px solid var(--border-color); margin: 4px 0; border-bottom: none;">
@@ -62,7 +76,7 @@
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
                         
                         <div class="dropdown-submenu">
-                            <a href="{{ route('events.index', ['date' => request('date'), 'branch' => $branchName]) }}" style="text-decoration: none; color: inherit;">
+                            <a href="{{ route(request()->route()->getName(), ['date' => request('date'), 'branch' => $branchName]) }}" style="text-decoration: none; color: inherit;">
                                 <div class="dropdown-item" style="font-weight: 600;">All {{ $branchName }}</div>
                             </a>
                             
@@ -72,11 +86,11 @@
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
                                     
                                     <div class="dropdown-submenu">
-                                        <a href="{{ route('events.index', ['date' => request('date'), 'branch' => $branchName, 'brand' => $brandName]) }}" style="text-decoration: none; color: inherit;">
+                                        <a href="{{ route(request()->route()->getName(), ['date' => request('date'), 'branch' => $branchName, 'brand' => $brandName]) }}" style="text-decoration: none; color: inherit;">
                                             <div class="dropdown-item" style="font-weight: 600;">All {{ $brandName }}</div>
                                         </a>
                                         @foreach($marcomsList as $marcomItem)
-                                            <a href="{{ route('events.index', ['date' => request('date'), 'branch' => $branchName, 'brand' => $brandName, 'marcom_id' => $marcomItem['id']]) }}" style="text-decoration: none; color: inherit;">
+                                            <a href="{{ route(request()->route()->getName(), ['date' => request('date'), 'branch' => $branchName, 'brand' => $brandName, 'marcom_id' => $marcomItem['id']]) }}" style="text-decoration: none; color: inherit;">
                                                 <div class="dropdown-item">{{ $marcomItem['name'] }}</div>
                                             </a>
                                         @endforeach
@@ -88,6 +102,7 @@
                 @endforeach
             </div>
         </div>
+        @endif
     </div>
 </div>
 
@@ -101,7 +116,7 @@
                         return $event->start_date->format('Y-m') === $monthDate->format('Y-m');
                     })->count();
                 @endphp
-                <a href="{{ route('events.index', array_merge(request()->query(), ['view' => 'month', 'date' => $monthDate->format('Y-m-d')])) }}" class="month-card">
+                <a href="{{ route(request()->route()->getName(), array_merge(request()->query(), ['view' => 'month', 'date' => $monthDate->format('Y-m-d')])) }}" class="month-card">
                     <div class="month-name">{{ $monthDate->format('F') }}</div>
                     <div class="month-count">{{ $monthEventsCount }} Event{{ $monthEventsCount != 1 ? 's' : '' }}</div>
                 </a>
@@ -118,11 +133,25 @@
             @else
                 @foreach($events as $event)
                     @php
-                        $colors = ['event-pink', 'event-blue', 'event-green', 'event-yellow', 'event-purple'];
-                        $colorClass = $colors[$event->marcom_id % count($colors)];
+                        $branchColors = [
+                            'Sidoarjo' => ['bg' => '#dbeafe', 'text' => '#1e3a8a'], // Blue
+                            'Madura' => ['bg' => '#d1fae5', 'text' => '#064e3b'], // Emerald
+                            'Tuban Lamongan' => ['bg' => '#fee2e2', 'text' => '#7f1d1d'], // Red
+                            'Jember' => ['bg' => '#ffedd5', 'text' => '#7c2d12'], // Orange
+                            'Probolinggo' => ['bg' => '#f3e8ff', 'text' => '#581c87'], // Purple
+                            'Surabaya' => ['bg' => '#fae8ff', 'text' => '#701a75'], // Fuchsia
+                            'Malang' => ['bg' => '#22212aff', 'text' => '#E1F5FE'], // Biru Langit
+                            'Madiun' => ['bg' => '#cffafe', 'text' => '#164e63'], // Cyan
+                            'Jombang' => ['bg' => '#fef9c3', 'text' => '#713f12'], // Yellow
+                            'Kediri' => ['bg' => '#fce7f3', 'text' => '#831843'], // Pink
+                            'Gresik Mojokerto' => ['bg' => '#e2e8f0', 'text' => '#0f172a'], // Slate
+                            'Tulungagung' => ['bg' => '#dcfce7', 'text' => '#14532d'], // Green
+                        ];
+                        $branchColor = $branchColors[$event->branch->name] ?? ['bg' => '#f1f5f9', 'text' => '#334155'];
+                        $brandBorderColor = $event->brand->name === '3ID' ? '#a855f7' : ($event->brand->name === 'IM3' ? '#eab308' : '#cbd5e1');
                     @endphp
-                    <div class="day-event-card {{ $colorClass }}">
-                        <div class="day-event-time">
+                    <div class="day-event-card" style="background-color: {{ $branchColor['bg'] }}; border-left-color: {{ $brandBorderColor }}; color: {{ $branchColor['text'] }};">
+                        <div class="day-event-time" style="color: {{ $branchColor['text'] }}; opacity: 0.9;">
                             {{ $event->start_date->format('H:i') }}
                             @if($event->end_date)
                                 - {{ $event->end_date->format('H:i') }}
@@ -185,10 +214,24 @@
                         @foreach($events as $event)
                             @if($event->start_date->isSameDay($day))
                                 @php
-                                    $colors = ['event-pink', 'event-blue', 'event-green', 'event-yellow', 'event-purple'];
-                                    $colorClass = $colors[$event->marcom_id % count($colors)];
+                                    $branchColors = [
+                                        'Sidoarjo' => ['bg' => '#dbeafe', 'text' => '#1e3a8a'],
+                                        'Madura' => ['bg' => '#d1fae5', 'text' => '#064e3b'],
+                                        'Tuban Lamongan' => ['bg' => '#fee2e2', 'text' => '#7f1d1d'],
+                                        'Jember' => ['bg' => '#ffedd5', 'text' => '#7c2d12'],
+                                        'Probolinggo' => ['bg' => '#f3e8ff', 'text' => '#581c87'],
+                                        'Surabaya' => ['bg' => '#fae8ff', 'text' => '#701a75'],
+                                        'Malang' => ['bg' => '#e0e7ff', 'text' => '#312e81'],
+                                        'Madiun' => ['bg' => '#cffafe', 'text' => '#164e63'],
+                                        'Jombang' => ['bg' => '#fef9c3', 'text' => '#713f12'],
+                                        'Kediri' => ['bg' => '#fce7f3', 'text' => '#831843'],
+                                        'Gresik Mojokerto' => ['bg' => '#e2e8f0', 'text' => '#0f172a'],
+                                        'Tulungagung' => ['bg' => '#dcfce7', 'text' => '#14532d'],
+                                    ];
+                                    $branchColor = $branchColors[$event->branch->name] ?? ['bg' => '#f1f5f9', 'text' => '#334155'];
+                                    $brandBorderColor = $event->brand->name === '3ID' ? '#a855f7' : ($event->brand->name === 'IM3' ? '#eab308' : '#cbd5e1');
                                 @endphp
-                                <div class="event-block {{ $colorClass }}" title="{{ $event->name }} ({{ $event->start_date->format('H:i') }})" style="cursor: pointer;" onclick="openEventModal({{ $event->id }}, '{{ addslashes($event->name) }}', '{{ $event->start_date->format('d M Y') }}', '{{ addslashes($event->location ?? '-') }}', '{{ $event->branch->name }}', '{{ $event->brand->name }}', '{{ $event->marcom->name }}', {{ $event->estimation }}, {{ $event->result ?? 'null' }}, {{ $event->is_regional ? 'true' : 'false' }}, {{ Auth::user()->role === 'admin' ? 'true' : 'false' }})">
+                                <div class="event-block" title="{{ $event->name }} ({{ $event->start_date->format('H:i') }})" style="background-color: {{ $branchColor['bg'] }}; border-left-color: {{ $brandBorderColor }}; color: {{ $branchColor['text'] }}; cursor: pointer;" onclick="openEventModal({{ $event->id }}, '{{ addslashes($event->name) }}', '{{ $event->start_date->format('d M Y') }}', '{{ addslashes($event->location ?? '-') }}', '{{ $event->branch->name }}', '{{ $event->brand->name }}', '{{ $event->marcom->name }}', {{ $event->estimation }}, {{ $event->result ?? 'null' }}, {{ $event->is_regional ? 'true' : 'false' }}, {{ Auth::user()->role === 'admin' ? 'true' : 'false' }})">
                                     <div class="event-title" style="display: flex; align-items: center; justify-content: space-between;">
                                         <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                             {{ $event->name }}
