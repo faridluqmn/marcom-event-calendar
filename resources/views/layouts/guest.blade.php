@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marcom EJ - Authentication</title>
+    <title>Marcom East Java - Authentication</title>
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -45,16 +45,17 @@
         }
 
         .auth-logo-icon {
-            width: 36px;
-            height: 36px;
-            background: linear-gradient(135deg, #FFD400 0%, #E7007F 100%);
-            border-radius: 10px;
-            box-shadow: 0 4px 14px rgba(231, 0, 127, 0.35);
-            animation: pulse 2.5s infinite cubic-bezier(0.4, 0, 0.6, 1);
+            width: 60px;
+            height: 42px;
+            background-image: url('/images/logo-marcomej.png');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: transform 0.3s ease;
         }
 
         .auth-logo-text {
-            font-size: 1.75rem;
+            font-size: 1.5rem;
             font-weight: 700;
             color: var(--text-primary);
             letter-spacing: -0.5px;

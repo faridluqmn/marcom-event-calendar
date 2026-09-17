@@ -103,8 +103,43 @@
             </div>
         </div>
         @endif
+
+        <!-- Capture Calendar Button -->
+        <button type="button" class="btn-primary" onclick="captureCalendar()" style="padding: 6px 14px; font-size: 0.85rem; border-radius: 18px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(231, 0, 127, 0.25);" title="Capture calendar as image">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                <circle cx="12" cy="13" r="4"></circle>
+            </svg>
+            <span>Capture</span>
+        </button>
     </div>
 </div>
+
+<div id="calendarCaptureContainer">
+    <!-- Capture-only Header -->
+    <div id="captureReportHeader" style="display: none; padding: 24px 28px 20px; border-bottom: 2px solid #e2e8f0; background: #ffffff;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <div class="logo-icon" style="width: 52px; height: 36px;"></div>
+                <div>
+                    <div style="font-size: 1.4rem; font-weight: 800; color: #0f172a; letter-spacing: -0.5px;">
+                        Marcom <span class="logo-accent">East Java</span>
+                    </div>
+                    <div style="font-size: 0.9rem; color: #64748b; font-weight: 600; margin-top: 1px;">
+                        {{ request()->routeIs('events.regional_calendar') ? '🌐 Regional Events Calendar' : '🏢 Branch Events Calendar' }}
+                    </div>
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 1.5rem; font-weight: 800; color: #E7007F; letter-spacing: -0.5px;">
+                    {{ $viewType == 'week' ? $baseDate->copy()->startOfWeek()->format('M d') . ' - ' . $baseDate->copy()->endOfWeek()->format('M d, Y') : $baseDate->format($titleFormat) }}
+                </div>
+                <div style="font-size: 0.85rem; color: #64748b; margin-top: 3px; font-weight: 500;">
+                    Filter: <span style="color: #0f172a; font-weight: 600;">{{ request('brand') ?? (request('branch') ?? 'All Events') }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
 
 @if($viewType == 'year')
     <div class="year-wrapper">
@@ -259,6 +294,27 @@
     </div>
 @endif
 
+    <!-- Capture-only Footer -->
+    <div id="captureReportFooter" style="display: none; padding: 14px 28px; border-top: 1px solid #e2e8f0; background: #f8fafc; justify-content: space-between; align-items: center; font-size: 0.85rem; color: #64748b;">
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <span style="display: inline-flex; align-items: center; gap: 6px; font-weight: 500;">
+                <span style="width: 14px; height: 14px; border-radius: 3px; border: 1px solid #fbcfe8; border-left: 3.5px solid #E7007F; background: #fdf2f8; display: inline-block;"></span> 3ID Event
+            </span>
+            <span style="display: inline-flex; align-items: center; gap: 6px; font-weight: 500;">
+                <span style="width: 14px; height: 14px; border-radius: 3px; border: 1px solid #fde047; border-left: 3.5px solid #FFD400; background: #fffbeb; display: inline-block;"></span> IM3 Event
+            </span>
+            <span style="display: inline-flex; align-items: center; gap: 6px; font-weight: 500;">
+                <span style="color: #FFD400; font-size: 1.1rem; line-height: 1;">★</span> Regional Event
+            </span>
+        </div>
+        <div style="font-size: 0.8rem; font-weight: 500;" id="captureReportTimestamp">
+            Exported: {{ now()->format('d M Y, H:i') }} WIB
+        </div>
+    </div>
+</div>
+
+<!-- html2canvas-pro for High-Res DOM to Image Capture (supports modern oklab/oklch colors) -->
+<script src="{{ asset('js/html2canvas-pro.min.js') }}"></script>
 <script>
     function openEventModal(eventId, name, date, location, branch, brand, marcom, estimation, result, isRegional, isAdmin) {
         // Format numbers
@@ -383,6 +439,143 @@
                 }
             }
         }
+    }
+
+    // Capture Calendar Functionality
+    function captureCalendar() {
+        const calendarContainer = document.getElementById('calendarCaptureContainer');
+        if (!calendarContainer) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal',
+                text: 'Elemen kalender tidak ditemukan.'
+            });
+            return;
+        }
+
+        if (typeof html2canvas === 'undefined') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Library Sedang Dimuat',
+                text: 'Silakan tunggu sebentar atau muat ulang halaman.'
+            });
+            return;
+        }
+
+        // Show SweetAlert loading
+        Swal.fire({
+            title: 'Capturing Calendar...',
+            html: 'Menyiapkan gambar kalender resolusi tinggi untuk bulan <strong>{{ $baseDate->format("F Y") }}</strong>...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        // Create offscreen clone with fixed desktop layout (1200px)
+        const clone = calendarContainer.cloneNode(true);
+        clone.id = 'calendarCaptureClone';
+        clone.style.position = 'fixed';
+        clone.style.top = '0';
+        clone.style.left = '0';
+        clone.style.width = '1200px';
+        clone.style.maxWidth = '1200px';
+        clone.style.minWidth = '1200px';
+        clone.style.zIndex = '-9999';
+        clone.style.opacity = '1';
+        clone.style.backgroundColor = '#ffffff';
+        clone.style.borderRadius = '16px';
+        clone.style.overflow = 'hidden';
+        clone.style.boxShadow = 'none';
+
+        // Show header & footer in clone
+        const cloneHeader = clone.querySelector('#captureReportHeader');
+        if (cloneHeader) cloneHeader.style.display = 'block';
+        
+        const cloneFooter = clone.querySelector('#captureReportFooter');
+        if (cloneFooter) cloneFooter.style.display = 'flex';
+
+        // Update real-time export timestamp dynamically at the exact moment of capture (WIB)
+        const timestampEl = clone.querySelector('#captureReportTimestamp');
+        if (timestampEl) {
+            const now = new Date();
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = months[now.getMonth()];
+            const year = now.getFullYear();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            timestampEl.textContent = `Exported: ${day} ${month} ${year}, ${hours}:${minutes} WIB`;
+        }
+
+        // Ensure wrapper inside clone does not have horizontal scroll / overflow
+        const cloneWrapper = clone.querySelector('.calendar-wrapper');
+        if (cloneWrapper) {
+            cloneWrapper.style.overflow = 'visible';
+            cloneWrapper.style.border = 'none';
+            cloneWrapper.style.borderRadius = '0';
+            cloneWrapper.style.boxShadow = 'none';
+        }
+
+        // Clean up unstarred regional buttons
+        clone.querySelectorAll('.event-block form button').forEach(btn => {
+            if (btn.style.color && (btn.style.color.includes('0.15') || btn.style.color.includes('rgba(0, 0, 0, 0.15)'))) {
+                btn.style.display = 'none';
+            }
+        });
+
+        document.body.appendChild(clone);
+
+        // Wait a brief moment for DOM styles to settle before html2canvas
+        setTimeout(() => {
+            html2canvas(clone, {
+                scale: 2, // 2x Retina resolution
+                useCORS: true,
+                backgroundColor: '#ffffff',
+                logging: false,
+                windowWidth: 1200
+            }).then(canvas => {
+                // Remove clone from DOM
+                clone.remove();
+
+                // Filename format: Marcom_East_Java_Branch_Calendar_September_2026.png
+                const calendarType = "{{ request()->routeIs('events.regional_calendar') ? 'Regional' : 'Branch' }}";
+                const monthName = "{{ $baseDate->format('F_Y') }}";
+                const fileName = `Marcom_East_Java_${calendarType}_Calendar_${monthName}.png`;
+
+                // Trigger automatic download
+                const imageUri = canvas.toDataURL('image/png');
+                const downloadLink = document.createElement('a');
+                downloadLink.download = fileName;
+                downloadLink.href = imageUri;
+                downloadLink.click();
+
+                // Show SweetAlert success with preview option
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Capture Berhasil!',
+                    html: `
+                        <p style="margin-bottom: 14px; font-size: 0.95rem; color: var(--text-secondary);">
+                            Kalender bulan <strong>{{ $baseDate->format("F Y") }}</strong> telah berhasil di-capture dan diunduh.
+                        </p>
+                        <div style="border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color); max-height: 220px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                            <img src="${imageUri}" alt="Calendar Preview" style="width: 100%; height: auto; display: block;">
+                        </div>
+                    `,
+                    confirmButtonText: 'Selesai',
+                    confirmButtonColor: '#E7007F'
+                });
+            }).catch(err => {
+                clone.remove();
+                console.error('Capture error:', err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal Mengambil Gambar',
+                    text: 'Terjadi kesalahan saat memproses gambar kalender: ' + err.message,
+                    confirmButtonColor: '#E7007F'
+                });
+            });
+        }, 250);
     }
 </script>
 @endsection

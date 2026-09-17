@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marcom EJ - User Dashboard</title>
+    <title>Marcom East Java - User Dashboard</title>
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -48,7 +48,7 @@
         <div class="sidebar-header">
             <div class="logo">
                 <div class="logo-icon"></div>
-                <span class="logo-text">Marcom <span class="logo-accent">EJ</span></span>
+                <span class="logo-text">Marcom <span class="logo-accent">East Java</span></span>
             </div>
             <button type="button" class="sidebar-close-btn" onclick="closeMobileSidebar()" aria-label="Close menu">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -89,8 +89,8 @@
                 <span class="hamburger-line"></span>
             </button>
             <div class="logo">
-                <div class="logo-icon" style="width: 24px; height: 24px;"></div>
-                <span class="logo-text" style="font-size: 1.15rem;">Marcom <span class="logo-accent">EJ</span></span>
+                <div class="logo-icon" style="width: 36px; height: 26px;"></div>
+                <span class="logo-text" style="font-size: 1.15rem;">Marcom <span class="logo-accent">East Java</span></span>
             </div>
         </div>
         
