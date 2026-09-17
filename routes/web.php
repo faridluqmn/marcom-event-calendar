@@ -52,10 +52,3 @@ Route::middleware('auth')->group(function () {
             ->name('events.result');
     });
 });
-
-use Illuminate\Support\Facades\Artisan;
-
-Route::get('/rahasia-seed', function () {
-    Artisan::call('db:seed', ['--force' => true]);
-    return 'Alhamdulillah, Seeding dari Render Berhasil!';
-});
