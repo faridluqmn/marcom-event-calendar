@@ -17,14 +17,20 @@
 </head>
 <body>
     <div class="app-container">
+        <!-- Sidebar Backdrop for Mobile -->
+        <div id="sidebarBackdrop" class="sidebar-backdrop" onclick="closeMobileSidebar()"></div>
+
         <!-- Sidebar -->
-        <aside class="sidebar">
+        <aside id="appSidebar" class="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
                     <!-- Icon Placeholder -->
                     <div class="logo-icon"></div>
                     <span class="logo-text">Marcom <span class="logo-accent">EJ</span></span>
                 </div>
+                <button type="button" class="sidebar-close-btn" onclick="closeMobileSidebar()" aria-label="Close menu">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
             </div>
             
             <nav class="sidebar-nav">
@@ -75,7 +81,7 @@
             </nav>
 
             <div class="sidebar-footer">
-                <form method="POST" action="{{ route('logout') }}" class="d-inline">
+                <form method="POST" action="{{ route('logout') }}" class="d-inline" style="width: 100%;">
                     @csrf
                     <button type="submit" class="nav-item btn-logout">
                         <span class="nav-icon">🚪</span>
@@ -89,9 +95,20 @@
         <main class="main-content">
             <!-- Topbar -->
             <header class="topbar">
-                <div class="search-bar">
-                    <span class="search-icon">🔍</span>
-                    <input type="text" placeholder="Search" class="search-input">
+                <div class="topbar-left">
+                    <button type="button" class="mobile-hamburger-btn" id="mobileHamburgerBtn" onclick="toggleMobileSidebar()" aria-label="Open Navigation">
+                        <span class="hamburger-line"></span>
+                        <span class="hamburger-line"></span>
+                        <span class="hamburger-line"></span>
+                    </button>
+                    <div class="topbar-mobile-brand">
+                        <div class="logo-icon" style="width: 26px; height: 26px;"></div>
+                        <span class="logo-text" style="font-size: 1.15rem;">Marcom <span class="logo-accent">EJ</span></span>
+                    </div>
+                    <div class="search-bar">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" placeholder="Search" class="search-input">
+                    </div>
                 </div>
                 <div class="topbar-right">
                     <button class="notification-btn">🔔</button>
@@ -142,6 +159,46 @@
                 if (arrow) arrow.style.transform = 'rotate(0deg)';
             }
         }
+
+        // Mobile Sidebar Drawer Functions
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('appSidebar');
+            if (sidebar && sidebar.classList.contains('mobile-open')) {
+                closeMobileSidebar();
+            } else {
+                openMobileSidebar();
+            }
+        }
+
+        function openMobileSidebar() {
+            const sidebar = document.getElementById('appSidebar');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            if (sidebar) sidebar.classList.add('mobile-open');
+            if (backdrop) backdrop.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMobileSidebar() {
+            const sidebar = document.getElementById('appSidebar');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            if (sidebar) sidebar.classList.remove('mobile-open');
+            if (backdrop) backdrop.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Auto-close on viewport resize to desktop
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                closeMobileSidebar();
+            }
+        });
+
+        // Close on ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeMobileSidebar();
+            }
+        });
     </script>
 </body>
 </html>

@@ -200,6 +200,92 @@ body {
     flex-shrink: 0;
 }
 
+.topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.topbar-mobile-brand {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+}
+
+.mobile-hamburger-btn {
+    display: none;
+    background: none;
+    border: 1px solid var(--border-color);
+    border-radius: 9px;
+    padding: 0;
+    width: 38px;
+    height: 38px;
+    cursor: pointer;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    background-color: #ffffff;
+}
+
+.mobile-hamburger-btn:hover {
+    border-color: var(--brand-magenta);
+    background-color: rgba(231, 0, 127, 0.05);
+}
+
+.mobile-hamburger-btn .hamburger-line {
+    display: block;
+    width: 18px;
+    height: 2.2px;
+    background-color: var(--text-primary);
+    border-radius: 2px;
+    transition: all 0.25s ease;
+}
+
+.mobile-hamburger-btn:hover .hamburger-line {
+    background-color: var(--brand-magenta);
+}
+
+.sidebar-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background-color: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 1040;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sidebar-backdrop.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.sidebar-close-btn {
+    display: none;
+    background: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    width: 32px;
+    height: 32px;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+}
+
+.sidebar-close-btn:hover {
+    background-color: #fef2f2;
+    color: #dc2626;
+    border-color: #fecaca;
+}
+
 .search-bar {
     display: flex;
     align-items: center;
@@ -939,91 +1025,127 @@ body {
 @media (max-width: 768px) {
     .app-container {
         flex-direction: column;
-        overflow-y: auto;
+        height: 100vh;
+        height: 100dvh;
+        overflow: hidden;
     }
 
-    /* Make Sidebar horizontal on mobile */
+    /* Show hamburger button & mobile brand on mobile */
+    .mobile-hamburger-btn {
+        display: flex;
+    }
+
+    .topbar-mobile-brand {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Sidebar Backdrop */
+    .sidebar-backdrop {
+        display: block;
+    }
+
+    /* Sidebar as Modal Popup Drawer */
     .sidebar {
-        width: 100%;
-        height: auto;
-        flex-direction: row;
-        padding: 12px 16px;
-        border-right: none;
-        border-bottom: 1px solid var(--border-color);
-        flex-wrap: wrap;
-        gap: 12px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 290px;
+        max-width: 85vw;
+        height: 100vh;
+        height: 100dvh;
+        background-color: var(--sidebar-bg);
+        z-index: 1050;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+        border-radius: 0 20px 20px 0;
+        border-right: 1px solid rgba(231, 0, 127, 0.15);
+        padding: 24px 0 20px;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        transform: translateX(-100%);
+        transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .sidebar.mobile-open {
+        transform: translateX(0);
     }
 
     .sidebar-header {
-        padding: 0;
-        width: 100%;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        padding: 0 20px 18px;
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 16px;
+        width: 100%;
+    }
+
+    .sidebar-close-btn {
+        display: flex;
     }
 
     .sidebar-nav {
-        flex-direction: row;
-        overflow-x: auto;
-        padding: 0;
-        gap: 8px;
+        flex-direction: column;
+        padding: 0 16px;
+        gap: 6px;
         width: 100%;
-        /* Hide scrollbar for a cleaner look */
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-    }
-    .sidebar-nav::-webkit-scrollbar {
-        display: none;
+        overflow-y: visible;
     }
 
     .nav-item {
-        white-space: nowrap;
-        width: auto !important; /* Override width: 100% from inline styles */
-        padding: 8px 16px;
-        font-size: 0.85rem;
+        width: 100% !important;
+        white-space: normal;
+        padding: 10px 16px;
+        font-size: 0.92rem;
     }
 
     .nav-group {
         display: flex;
         flex-direction: column;
+        width: 100%;
     }
 
-    #calendarMenu {
-        position: absolute; /* Float it to prevent messing up horizontal scroll */
-        top: 60px; /* Below the nav */
-        background: #ffffff;
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        padding-left: 0 !important;
-        z-index: 9999;
-    }
-
-    #calendarMenu .nav-item {
-        width: 100% !important; /* Dropdown items should be full width */
-        padding: 12px 20px !important;
+    #calendarMenu, #listsMenu {
+        position: static !important;
+        box-shadow: none !important;
+        border: none !important;
+        background: transparent !important;
+        padding-left: 28px !important;
     }
 
     .sidebar-footer {
-        display: none; /* Hide footer items on mobile to save space */
+        display: flex !important;
+        margin-top: auto;
+        padding: 16px 16px 0;
+        border-top: 1px solid var(--border-color);
     }
 
     .main-content {
-        overflow: visible;
+        width: 100%;
+        height: 100vh;
+        height: 100dvh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
     }
 
     .topbar {
         padding: 0 16px;
         height: 60px;
+        flex-shrink: 0;
     }
 
     .search-bar {
-        width: 160px;
+        display: none; /* Hide search bar on mobile to give space to brand and icons */
     }
 
     .page-content {
         padding: 16px;
-        overflow-y: visible;
+        flex-grow: 1;
+        overflow-y: auto;
     }
 
     /* Calendar Responsiveness */
