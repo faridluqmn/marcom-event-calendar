@@ -483,6 +483,7 @@
         clone.style.minWidth = '1200px';
         clone.style.zIndex = '-9999';
         clone.style.opacity = '1';
+        clone.style.pointerEvents = 'none';
         clone.style.backgroundColor = '#ffffff';
         clone.style.borderRadius = '16px';
         clone.style.overflow = 'hidden';
@@ -524,6 +525,10 @@
             }
         });
 
+        // Prevent viewport jumping on mobile devices during rendering
+        const prevBodyOverflow = document.body.style.overflowX;
+        document.body.style.overflowX = 'hidden';
+
         document.body.appendChild(clone);
 
         // Wait a brief moment for DOM styles to settle before html2canvas
@@ -533,40 +538,67 @@
                 useCORS: true,
                 backgroundColor: '#ffffff',
                 logging: false,
-                windowWidth: 1200
+                windowWidth: 1200,
+                width: 1200,
+                scrollX: 0,
+                scrollY: 0,
+                x: 0,
+                y: 0
             }).then(canvas => {
-                // Remove clone from DOM
+                // Remove clone from DOM & restore body overflow
                 clone.remove();
+                document.body.style.overflowX = prevBodyOverflow;
 
                 // Filename format: Marcom_East_Java_Branch_Calendar_September_2026.png
                 const calendarType = "{{ request()->routeIs('events.regional_calendar') ? 'Regional' : 'Branch' }}";
                 const monthName = "{{ $baseDate->format('F_Y') }}";
                 const fileName = `Marcom_East_Java_${calendarType}_Calendar_${monthName}.png`;
 
-                // Trigger automatic download
-                const imageUri = canvas.toDataURL('image/png');
-                const downloadLink = document.createElement('a');
-                downloadLink.download = fileName;
-                downloadLink.href = imageUri;
-                downloadLink.click();
+                // Use toBlob for maximum mobile browser compatibility & low memory footprint
+                canvas.toBlob(blob => {
+                    if (!blob) {
+                        throw new Error('Gagal mengonversi kanvas kalender ke file gambar.');
+                    }
+                    const blobUrl = URL.createObjectURL(blob);
 
-                // Show SweetAlert success with preview option
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Capture Berhasil!',
-                    html: `
-                        <p style="margin-bottom: 14px; font-size: 0.95rem; color: var(--text-secondary);">
-                            Kalender bulan <strong>{{ $baseDate->format("F Y") }}</strong> telah berhasil di-capture dan diunduh.
-                        </p>
-                        <div style="border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color); max-height: 220px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-                            <img src="${imageUri}" alt="Calendar Preview" style="width: 100%; height: auto; display: block;">
-                        </div>
-                    `,
-                    confirmButtonText: 'Selesai',
-                    confirmButtonColor: '#E7007F'
-                });
+                    // Trigger automatic download attempt
+                    const downloadLink = document.createElement('a');
+                    downloadLink.download = fileName;
+                    downloadLink.href = blobUrl;
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    downloadLink.remove();
+
+                    // Show SweetAlert success with preview and mobile direct download/open buttons
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Capture Berhasil!',
+                        html: `
+                            <p style="margin-bottom: 12px; font-size: 0.95rem; color: var(--text-secondary);">
+                                Kalender bulan <strong>{{ $baseDate->format("F Y") }}</strong> telah berhasil di-capture dalam resolusi tinggi.
+                            </p>
+                            <div style="border-radius: 10px; overflow: hidden; border: 1px solid var(--border-color); max-height: 200px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 16px; background: #f8fafc;">
+                                <img src="${blobUrl}" alt="Calendar Preview" style="width: 100%; height: auto; display: block;">
+                            </div>
+                            <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+                                <a href="${blobUrl}" download="${fileName}" class="btn-primary" style="padding: 8px 16px; font-size: 0.85rem; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(231,0,127,0.25);">
+                                    📥 Simpan Gambar
+                                </a>
+                                <a href="${blobUrl}" target="_blank" style="padding: 8px 16px; font-size: 0.85rem; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border-color); color: var(--text-primary); background: #ffffff;">
+                                    🔍 Buka Layar Penuh
+                                </a>
+                            </div>
+                            <p style="margin-top: 12px; font-size: 0.78rem; color: #94a3b8;">
+                                💡 Tip Mobile: Jika unduhan tidak otomatis dimulai oleh browser ponsel Anda, klik tombol <strong>Simpan Gambar</strong> atau tahan gambar di atas untuk disimpan ke galeri.
+                            </p>
+                        `,
+                        confirmButtonText: 'Tutup',
+                        confirmButtonColor: '#E7007F'
+                    });
+                }, 'image/png');
             }).catch(err => {
                 clone.remove();
+                document.body.style.overflowX = prevBodyOverflow;
                 console.error('Capture error:', err);
                 Swal.fire({
                     icon: 'error',

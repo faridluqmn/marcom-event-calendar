@@ -1170,6 +1170,33 @@ body {
         margin-bottom: 4px;
     }
 
+    /* Keep capture clone strictly at desktop layout even when triggered on mobile */
+    #calendarCaptureClone {
+        width: 1200px !important;
+        max-width: 1200px !important;
+        min-width: 1200px !important;
+    }
+    #calendarCaptureClone .calendar-wrapper {
+        overflow: visible !important;
+        border: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+    }
+    #calendarCaptureClone .calendar-days-header,
+    #calendarCaptureClone .calendar-grid {
+        min-width: 1200px !important;
+        width: 1200px !important;
+        grid-template-columns: repeat(7, 1fr) !important;
+    }
+    #calendarCaptureClone .calendar-day-cell {
+        min-height: 120px !important;
+        padding: 8px !important;
+    }
+    #calendarCaptureClone .day-number {
+        font-size: 1rem !important;
+        margin-bottom: 6px !important;
+    }
+
     /* Analytics Responsiveness */
     .analytics-grid {
         grid-template-columns: repeat(2, 1fr);
