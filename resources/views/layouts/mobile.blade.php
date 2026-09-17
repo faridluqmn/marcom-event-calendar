@@ -52,8 +52,8 @@
 <body>
     <header class="mobile-topbar">
         <div class="logo">
-            <div class="logo-icon" style="width: 20px; height: 20px;"></div>
-            <span class="logo-text" style="font-size: 1.1rem;">Marcom EJ</span>
+            <div class="logo-icon" style="width: 24px; height: 24px;"></div>
+            <span class="logo-text" style="font-size: 1.15rem;">Marcom <span class="logo-accent">EJ</span></span>
         </div>
         
         <div style="display: flex; align-items: center; gap: 12px;">

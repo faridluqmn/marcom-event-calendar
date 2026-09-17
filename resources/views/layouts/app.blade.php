@@ -23,7 +23,7 @@
                 <div class="logo">
                     <!-- Icon Placeholder -->
                     <div class="logo-icon"></div>
-                    <span class="logo-text">Marcom EJ</span>
+                    <span class="logo-text">Marcom <span class="logo-accent">EJ</span></span>
                 </div>
             </div>
             
@@ -96,7 +96,7 @@
                 <div class="topbar-right">
                     <button class="notification-btn">🔔</button>
                     <div class="user-profile">
-                        <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name ?? 'User') }}&background=random" alt="Profile" class="profile-img">
+                        <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name ?? 'User') }}&background=E7007F&color=fff" alt="Profile" class="profile-img">
                     </div>
                 </div>
             </header>
@@ -104,7 +104,7 @@
             <!-- Page Content -->
             <div class="page-content">
                 @if(session('success'))
-                    <div id="toast-notification" style="position: fixed; top: 20px; right: 20px; background-color: #10b981; color: white; padding: 12px 24px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 9999; font-weight: 500; transition: opacity 0.5s ease-in-out;">
+                    <div id="toast-notification" style="position: fixed; top: 20px; right: 20px; background: linear-gradient(135deg, #E7007F 0%, #d80072 100%); color: white; padding: 12px 24px; border-radius: 10px; box-shadow: 0 8px 24px rgba(231, 0, 127, 0.35); z-index: 9999; font-weight: 600; transition: opacity 0.5s ease-in-out;">
                         {{ session('success') }}
                     </div>
                     <script>

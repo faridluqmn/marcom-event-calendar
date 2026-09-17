@@ -4,7 +4,7 @@
 <div class="auth-card">
     <div class="auth-logo">
         <div class="auth-logo-icon"></div>
-        <span class="auth-logo-text">Marcom EJ</span>
+        <span class="auth-logo-text">Marcom <span class="logo-accent">EJ</span></span>
     </div>
     
     <h2 class="auth-title">Welcome back</h2>

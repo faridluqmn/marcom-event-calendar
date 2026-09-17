@@ -37,12 +37,20 @@
                         <small style="color: var(--text-secondary);">📍 {{ $event->location }}</small>
                     </td>
                     <td>{{ $event->branch->name }}</td>
-                    <td>{{ $event->brand->name }}</td>
+                    <td>
+                        @if($event->brand->name === '3ID')
+                            <span style="background: rgba(231, 0, 127, 0.08); color: #E7007F; border: 1px solid rgba(231, 0, 127, 0.22); padding: 2px 8px; border-radius: 6px; font-weight: 600; font-size: 0.8rem; display: inline-block;">3ID</span>
+                        @elseif($event->brand->name === 'IM3')
+                            <span style="background: rgba(255, 212, 0, 0.18); color: #854d0e; border: 1px solid rgba(255, 212, 0, 0.45); padding: 2px 8px; border-radius: 6px; font-weight: 600; font-size: 0.8rem; display: inline-block;">IM3</span>
+                        @else
+                            {{ $event->brand->name }}
+                        @endif
+                    </td>
                     <td>{{ $event->marcom->name }}</td>
                     <td style="font-weight: 500;">{{ number_format($event->estimation, 0, ',', '.') }} pcs</td>
                     <td>
                         @if($event->result !== null)
-                            <span style="font-weight: 600; color: #10b981;">{{ number_format($event->result, 0, ',', '.') }} pcs</span>
+                            <span style="font-weight: 600; color: #E7007F;">{{ number_format($event->result, 0, ',', '.') }} pcs</span>
                         @else
                             <span style="color: var(--text-secondary); font-style: italic;">-</span>
                         @endif
@@ -60,7 +68,7 @@
                         <form action="{{ route('events.regional', $event->id) }}" method="POST" style="margin: 0; padding: 0;">
                             @csrf
                             @method('PATCH')
-                            <button type="submit" style="background: none; border: none; padding: 4px; cursor: pointer; color: {{ $event->is_regional ? '#f59e0b' : '#cbd5e1' }}; font-size: 1.25rem; line-height: 1;" title="{{ $event->is_regional ? 'Regional Event (Click to unmark)' : 'Mark as Regional' }}">
+                            <button type="submit" style="background: none; border: none; padding: 4px; cursor: pointer; color: {{ $event->is_regional ? '#FFD400' : '#cbd5e1' }}; font-size: 1.25rem; line-height: 1;" title="{{ $event->is_regional ? 'Regional Event (Click to unmark)' : 'Mark as Regional' }}">
                                 ★
                             </button>
                         </form>
@@ -72,7 +80,7 @@
                                     <span>➕</span> Result
                                 </button>
                             @else
-                                <button type="button" onclick="promptResult({{ $event->id }}, '{{ addslashes($event->name) }}', {{ $event->result }})" style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;" title="Edit Actual Result">
+                                <button type="button" onclick="promptResult({{ $event->id }}, '{{ addslashes($event->name) }}', {{ $event->result }})" style="background: #fdf2f8; color: #E7007F; border: 1px solid #fbcfe8; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;" title="Edit Actual Result">
                                     <span>✏️</span> Edit
                                 </button>
                             @endif
@@ -139,7 +147,7 @@
             },
             showCancelButton: true,
             confirmButtonText: 'Save Result',
-            confirmButtonColor: '#10b981',
+            confirmButtonColor: '#E7007F',
             showLoaderOnConfirm: true,
             preConfirm: (resultValue) => {
                 if (resultValue === '' || resultValue === null) {

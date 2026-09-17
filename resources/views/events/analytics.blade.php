@@ -30,12 +30,12 @@
     
     <div class="stat-card">
         <div class="stat-title">Total Estimation</div>
-        <div class="stat-value">{{ number_format($totalEstimation, 0, ',', '.') }} pcs</div>
+        <div class="stat-value" style="color: #b45309;">{{ number_format($totalEstimation, 0, ',', '.') }} pcs</div>
     </div>
     
     <div class="stat-card">
         <div class="stat-title">Total Actual Result</div>
-        <div class="stat-value">{{ number_format($totalResult, 0, ',', '.') }} pcs</div>
+        <div class="stat-value" style="color: #E7007F;">{{ number_format($totalResult, 0, ',', '.') }} pcs</div>
     </div>
     
     <div class="stat-card highlight">
@@ -161,14 +161,14 @@
                     {
                         label: 'Estimation (pcs)',
                         data: rawData.estimation,
-                        backgroundColor: '#3b82f6', // Blue
-                        borderRadius: 4
+                        backgroundColor: '#FFD400', // IM3 Yellow
+                        borderRadius: 6
                     },
                     {
                         label: 'Actual Result (pcs)',
                         data: rawData.result,
-                        backgroundColor: '#10b981', // Green
-                        borderRadius: 4
+                        backgroundColor: '#E7007F', // 3ID Magenta
+                        borderRadius: 6
                     }
                 ]
             },

@@ -38,11 +38,11 @@
     <!-- Center Badge Pill -->
     <div style="display: flex; align-items: center; justify-content: center;">
         @if(request()->routeIs('events.regional_calendar'))
-            <span style="background: #eef2ff; color: #4f46e5; border: 1px solid #c7d2fe; font-size: 0.85rem; font-weight: 600; padding: 6px 16px; border-radius: 9999px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
+            <span style="background: linear-gradient(135deg, rgba(231, 0, 127, 0.08) 0%, rgba(255, 212, 0, 0.12) 100%); color: #E7007F; border: 1px solid rgba(231, 0, 127, 0.25); font-size: 0.85rem; font-weight: 600; padding: 6px 18px; border-radius: 9999px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(231, 0, 127, 0.1);">
                 🌐 Regional Calendar
             </span>
         @else
-            <span style="background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd; font-size: 0.85rem; font-weight: 600; padding: 6px 16px; border-radius: 9999px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
+            <span style="background: #ffffff; color: var(--text-primary); border: 1px solid var(--border-color); font-size: 0.85rem; font-weight: 600; padding: 6px 18px; border-radius: 9999px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
                 🏢 Branch Calendar
             </span>
         @endif
@@ -229,7 +229,7 @@
                                         'Tulungagung' => ['bg' => '#dcfce7', 'text' => '#14532d'],
                                     ];
                                     $branchColor = $branchColors[$event->branch->name] ?? ['bg' => '#f1f5f9', 'text' => '#334155'];
-                                    $brandBorderColor = $event->brand->name === '3ID' ? '#a855f7' : ($event->brand->name === 'IM3' ? '#eab308' : '#cbd5e1');
+                                    $brandBorderColor = $event->brand->name === '3ID' ? '#E7007F' : ($event->brand->name === 'IM3' ? '#FFD400' : '#cbd5e1');
                                 @endphp
                                 <div class="event-block" title="{{ $event->name }} ({{ $event->start_date->format('H:i') }})" style="background-color: {{ $branchColor['bg'] }}; border-left-color: {{ $brandBorderColor }}; color: {{ $branchColor['text'] }}; cursor: pointer;" onclick="openEventModal({{ $event->id }}, '{{ addslashes($event->name) }}', '{{ $event->start_date->format('d M Y') }}', '{{ addslashes($event->location ?? '-') }}', '{{ $event->branch->name }}', '{{ $event->brand->name }}', '{{ $event->marcom->name }}', {{ $event->estimation }}, {{ $event->result ?? 'null' }}, {{ $event->is_regional ? 'true' : 'false' }}, {{ Auth::user()->role === 'admin' ? 'true' : 'false' }})">
                                     <div class="event-title" style="display: flex; align-items: center; justify-content: space-between;">
@@ -239,7 +239,7 @@
                                         <form action="{{ route('events.regional', $event->id) }}" method="POST" style="margin: 0; padding: 0;" title="Toggle Regional" onclick="event.stopPropagation()">
                                             @csrf
                                             @method('PATCH')
-                                            <button type="submit" style="background: none; border: none; padding: 0; cursor: pointer; color: {{ $event->is_regional ? '#fbbf24' : 'rgba(0,0,0,0.15)' }}; font-size: 0.9rem; line-height: 1;">
+                                            <button type="submit" style="background: none; border: none; padding: 0; cursor: pointer; color: {{ $event->is_regional ? '#FFD400' : 'rgba(0,0,0,0.15)' }}; font-size: 0.95rem; line-height: 1;">
                                                 ★
                                             </button>
                                         </form>
@@ -287,18 +287,18 @@
                 <hr style="margin: 16px 0; border: none; border-top: 1px solid var(--border-color);">
                 <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
                     <span style="font-weight: 600; color: var(--text-secondary);">Estimation:</span> 
-                    <span style="font-size: 1.1rem; font-weight: 600; color: #3b82f6;">${formattedEst}</span>
+                    <span style="font-size: 1.1rem; font-weight: 700; color: #b45309; background: rgba(255, 212, 0, 0.15); padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(255, 212, 0, 0.35);">${formattedEst}</span>
                 </div>
                 <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
                     <span style="font-weight: 600; color: var(--text-secondary);">Actual Result:</span> 
-                    <span style="font-size: 1.1rem; font-weight: 600; color: #10b981;">${formattedRes}</span>
+                    <span style="font-size: 1.1rem; font-weight: 700; color: #E7007F; background: rgba(231, 0, 127, 0.08); padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(231, 0, 127, 0.22);">${formattedRes}</span>
                 </div>
         `;
 
         if (isAdmin && result === null) {
             const escapedName = name.replace(/'/g, "\\'");
             htmlContent += `
-                <button onclick="promptResult(${eventId}, '${escapedName}')" class="btn-primary" style="width: 100%; justify-content: center; background-color: #10b981; border-color: #10b981; padding: 12px; font-size: 1rem;">
+                <button onclick="promptResult(${eventId}, '${escapedName}')" class="btn-primary" style="width: 100%; justify-content: center; padding: 12px; font-size: 1rem; border-radius: 10px;">
                     Input Result Now
                 </button>
             `;
@@ -330,7 +330,7 @@
             },
             showCancelButton: true,
             confirmButtonText: 'Save Result',
-            confirmButtonColor: '#10b981',
+            confirmButtonColor: '#E7007F',
             showLoaderOnConfirm: true,
             preConfirm: (resultValue) => {
                 if (!resultValue) {
