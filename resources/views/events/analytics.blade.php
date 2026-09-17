@@ -102,11 +102,6 @@
                 </td>
             </tr>
         @endforeach
-        @if($recentEvents->isEmpty())
-            <tr>
-                <td colspan="10" style="text-align: center; color: var(--text-secondary);">No recent events found.</td>
-            </tr>
-        @endif
     </tbody>
 </table>
 
@@ -135,7 +130,8 @@
                 "targets": 0
             }],
             "language": {
-                "search": "Filter events:"
+                "search": "Filter events:",
+                "emptyTable": "No recent events found."
             }
         });
 

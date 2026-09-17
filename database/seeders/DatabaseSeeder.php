@@ -17,7 +17,6 @@ class DatabaseSeeder extends Seeder
             BranchSeeder::class,
             BrandSeeder::class,
             MarcomSeeder::class,
-            EventSeeder::class,
         ]);
     }
 }

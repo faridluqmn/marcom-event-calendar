@@ -56,11 +56,6 @@
                         </td>
                     </tr>
                 @endforeach
-                @if($regionalEvents->isEmpty())
-                    <tr>
-                        <td colspan="8" style="text-align: center; color: var(--text-secondary);">No regional events have been marked yet.</td>
-                    </tr>
-                @endif
             </tbody>
         </table>
     </form>
@@ -90,7 +85,8 @@
                 { "orderable": false, "targets": 0 } // Disable sorting on checkbox column
             ],
             "language": {
-                "search": "Filter events:"
+                "search": "Filter events:",
+                "emptyTable": "No regional events have been marked yet."
             }
         });
     });
