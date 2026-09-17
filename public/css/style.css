@@ -814,6 +814,34 @@ body {
     flex-direction: column;
     gap: 16px;
 }
+.day-empty-state {
+    padding: 50px 20px;
+    text-align: center;
+    color: var(--text-secondary);
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1.5px dashed var(--border-color);
+    margin: 10px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.day-empty-state .empty-icon {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    line-height: 1;
+}
+.day-empty-state .empty-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+.day-empty-state .empty-desc {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
 .day-event-card {
     display: flex;
     background-color: #ffffff;

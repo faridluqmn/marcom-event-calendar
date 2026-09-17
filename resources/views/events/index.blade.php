@@ -127,6 +127,15 @@
                     </div>
                     <div style="font-size: 0.9rem; color: #64748b; font-weight: 600; margin-top: 1px;">
                         {{ request()->routeIs('events.regional_calendar') ? '🌐 Regional Events Calendar' : '🏢 Branch Events Calendar' }}
+                        @if($viewType == 'week')
+                            &bull; Week View
+                        @elseif($viewType == 'day')
+                            &bull; Day View
+                        @elseif($viewType == 'year')
+                            &bull; Year View
+                        @else
+                            &bull; Month View
+                        @endif
                     </div>
                 </div>
             </div>
@@ -162,8 +171,10 @@
     <div class="calendar-wrapper day-view">
         <div class="day-list">
             @if($events->isEmpty())
-                <div style="padding: 40px; text-align: center; color: var(--text-secondary);">
-                    No events scheduled for this day.
+                <div class="day-empty-state">
+                    <div class="empty-icon">📅</div>
+                    <div class="empty-title">Tidak Ada Event Terjadwal</div>
+                    <div class="empty-desc">Belum ada kegiatan atau event yang tercatat untuk tanggal <strong>{{ $baseDate->format('l, d F Y') }}</strong>.</div>
                 </div>
             @else
                 @foreach($events as $event)
@@ -224,10 +235,13 @@
                 $dayNames = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
             @endphp
             @foreach($dayNames as $index => $dayName)
+                @php
+                    $isSundayCol = ($index === 6);
+                @endphp
                 <div class="day-header">
-                    <span class="day-name">{{ $dayName }}</span>
+                    <span class="day-name {{ $isSundayCol ? 'text-red' : '' }}">{{ $dayName }}</span>
                     @if($viewType == 'week')
-                        <div class="week-date-number">{{ $days[$index]->format('d') }}</div>
+                        <div class="week-date-number {{ $isSundayCol ? 'text-red' : '' }}">{{ $days[$index]->format('d') }}</div>
                     @endif
                 </div>
             @endforeach
@@ -462,10 +476,25 @@
             return;
         }
 
+        @php
+            $viewPeriodText = 'bulan ' . $baseDate->format('F Y');
+            $fileDateSuffix = $baseDate->format('F_Y');
+            if ($viewType == 'week') {
+                $viewPeriodText = 'minggu ' . $baseDate->copy()->startOfWeek()->format('d M') . ' - ' . $baseDate->copy()->endOfWeek()->format('d M Y');
+                $fileDateSuffix = 'Week_' . $baseDate->copy()->startOfWeek()->format('Y_m_d') . '_to_' . $baseDate->copy()->endOfWeek()->format('Y_m_d');
+            } elseif ($viewType == 'day') {
+                $viewPeriodText = 'hari ' . $baseDate->format('l, d F Y');
+                $fileDateSuffix = 'Day_' . $baseDate->format('Y_m_d');
+            } elseif ($viewType == 'year') {
+                $viewPeriodText = 'tahun ' . $baseDate->format('Y');
+                $fileDateSuffix = 'Year_' . $baseDate->format('Y');
+            }
+        @endphp
+
         // Show SweetAlert loading
         Swal.fire({
             title: 'Capturing Calendar...',
-            html: 'Menyiapkan gambar kalender resolusi tinggi untuk bulan <strong>{{ $baseDate->format("F Y") }}</strong>...',
+            html: 'Menyiapkan gambar kalender resolusi tinggi untuk <strong>{{ $viewPeriodText }}</strong>...',
             allowOutsideClick: false,
             didOpen: () => {
                 Swal.showLoading();
@@ -509,14 +538,302 @@
             timestampEl.textContent = `Exported: ${day} ${month} ${year}, ${hours}:${minutes} WIB`;
         }
 
-        // Ensure wrapper inside clone does not have horizontal scroll / overflow
-        const cloneWrapper = clone.querySelector('.calendar-wrapper');
-        if (cloneWrapper) {
-            cloneWrapper.style.overflow = 'visible';
-            cloneWrapper.style.border = 'none';
-            cloneWrapper.style.borderRadius = '0';
-            cloneWrapper.style.boxShadow = 'none';
-        }
+        // Inject self-contained styles directly inside clone to guarantee 7-column grid layout,
+        // Inter font, and logo image even if external stylesheets fail or are blocked in iframes
+        const captureStyle = document.createElement('style');
+        captureStyle.textContent = `
+            #calendarCaptureClone {
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+                background-color: #ffffff !important;
+                color: #0f172a !important;
+                width: 1200px !important;
+                max-width: 1200px !important;
+                min-width: 1200px !important;
+                box-sizing: border-box !important;
+            }
+            #calendarCaptureClone * {
+                box-sizing: border-box !important;
+                font-family: inherit !important;
+            }
+            #calendarCaptureClone .calendar-wrapper {
+                overflow: visible !important;
+                border: 1px solid #e2e8f0 !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+                width: 100% !important;
+                margin: 0 !important;
+                background-color: #ffffff !important;
+            }
+            #calendarCaptureClone .calendar-days-header {
+                display: grid !important;
+                grid-template-columns: repeat(7, 1fr) !important;
+                width: 100% !important;
+                background-color: #f8fafc !important;
+                border-bottom: 1px solid #e2e8f0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            #calendarCaptureClone .day-header {
+                text-align: center !important;
+                padding: 10px 8px !important;
+                border-right: 1px solid #e2e8f0 !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+            #calendarCaptureClone .day-header:last-child {
+                border-right: none !important;
+            }
+            #calendarCaptureClone .day-name {
+                font-size: 0.78rem !important;
+                color: #64748b !important;
+                text-transform: uppercase !important;
+                font-weight: 700 !important;
+                letter-spacing: 0.5px !important;
+                display: block !important;
+            }
+            #calendarCaptureClone .day-name.text-red {
+                color: #ef4444 !important;
+            }
+            #calendarCaptureClone .week-date-number {
+                font-size: 1.35rem !important;
+                font-weight: 600 !important;
+                margin-top: 3px !important;
+                color: #0f172a !important;
+                display: block !important;
+                line-height: 1.2 !important;
+            }
+            #calendarCaptureClone .week-date-number.text-red {
+                color: #ef4444 !important;
+            }
+            #calendarCaptureClone .calendar-grid {
+                display: grid !important;
+                grid-template-columns: repeat(7, 1fr) !important;
+                grid-auto-rows: minmax(120px, auto) !important;
+                width: 100% !important;
+                background-color: #e2e8f0 !important;
+                gap: 1px !important;
+                border-bottom: 1px solid #e2e8f0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            #calendarCaptureClone .calendar-grid.calendar-grid-week,
+            #calendarCaptureClone .calendar-grid-week {
+                grid-auto-rows: minmax(420px, auto) !important;
+            }
+            #calendarCaptureClone .calendar-day-cell {
+                background-color: #ffffff !important;
+                padding: 8px !important;
+                min-height: 120px !important;
+                display: flex !important;
+                flex-direction: column !important;
+                position: relative !important;
+            }
+            #calendarCaptureClone .calendar-grid-week .calendar-day-cell {
+                min-height: 420px !important;
+                padding: 10px !important;
+            }
+            #calendarCaptureClone .calendar-day-cell.out-of-month {
+                background-color: #f8fafc !important;
+                opacity: 0.5 !important;
+            }
+            #calendarCaptureClone .day-number {
+                font-weight: 700 !important;
+                font-size: 0.95rem !important;
+                margin-bottom: 6px !important;
+                color: #0f172a !important;
+                text-align: right !important;
+                display: block !important;
+            }
+            #calendarCaptureClone .day-number.text-red {
+                color: #ef4444 !important;
+            }
+            #calendarCaptureClone .events-container {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 4px !important;
+                flex-grow: 1 !important;
+                width: 100% !important;
+            }
+            #calendarCaptureClone .calendar-grid-week .events-container {
+                min-height: 380px !important;
+            }
+            #calendarCaptureClone .calendar-wrapper.day-view,
+            #calendarCaptureClone .day-view {
+                padding: 32px 36px !important;
+                background-color: #ffffff !important;
+                border: 1px solid #e2e8f0 !important;
+                border-radius: 0 !important;
+                min-height: 440px !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: center !important;
+            }
+            #calendarCaptureClone .day-list {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 16px !important;
+                width: 100% !important;
+            }
+            #calendarCaptureClone .day-empty-state {
+                padding: 60px 30px !important;
+                text-align: center !important;
+                color: #64748b !important;
+                background: #f8fafc !important;
+                border-radius: 16px !important;
+                border: 2px dashed #cbd5e1 !important;
+                margin: 0 auto !important;
+                width: 100% !important;
+                max-width: 680px !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+            #calendarCaptureClone .day-empty-state .empty-icon {
+                font-size: 3.2rem !important;
+                margin-bottom: 12px !important;
+                line-height: 1 !important;
+            }
+            #calendarCaptureClone .day-empty-state .empty-title {
+                font-size: 1.3rem !important;
+                font-weight: 700 !important;
+                color: #0f172a !important;
+                margin-bottom: 6px !important;
+            }
+            #calendarCaptureClone .day-empty-state .empty-desc {
+                font-size: 0.95rem !important;
+                color: #64748b !important;
+                line-height: 1.5 !important;
+            }
+            #calendarCaptureClone .day-event-card {
+                display: flex !important;
+                border-radius: 10px !important;
+                border: 1px solid #e2e8f0 !important;
+                border-left-width: 5px !important;
+                border-left-style: solid !important;
+                padding: 18px 22px !important;
+                box-shadow: 0 1px 4px rgba(0,0,0,0.04) !important;
+                align-items: flex-start !important;
+                background-color: #ffffff !important;
+            }
+            #calendarCaptureClone .day-event-time {
+                width: 140px !important;
+                font-weight: 700 !important;
+                font-size: 1.1rem !important;
+                flex-shrink: 0 !important;
+                line-height: 1.4 !important;
+            }
+            #calendarCaptureClone .day-event-details {
+                flex-grow: 1 !important;
+            }
+            #calendarCaptureClone .day-event-details h4 {
+                margin: 0 0 6px 0 !important;
+                font-size: 1.2rem !important;
+                font-weight: 700 !important;
+                color: #0f172a !important;
+            }
+            #calendarCaptureClone .day-event-details p {
+                margin: 3px 0 !important;
+                font-size: 0.92rem !important;
+                color: #475569 !important;
+            }
+            #calendarCaptureClone .year-wrapper {
+                padding: 30px !important;
+                background-color: #ffffff !important;
+                border: 1px solid #e2e8f0 !important;
+            }
+            #calendarCaptureClone .year-grid {
+                display: grid !important;
+                grid-template-columns: repeat(4, 1fr) !important;
+                gap: 16px !important;
+            }
+            #calendarCaptureClone .month-card {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+                padding: 24px 16px !important;
+                background-color: #f8fafc !important;
+                border: 1px solid #e2e8f0 !important;
+                border-radius: 12px !important;
+                text-decoration: none !important;
+            }
+            #calendarCaptureClone .month-name {
+                font-size: 1.2rem !important;
+                font-weight: 700 !important;
+                color: #0f172a !important;
+                margin-bottom: 8px !important;
+            }
+            #calendarCaptureClone .month-count {
+                font-size: 0.85rem !important;
+                color: #64748b !important;
+                background-color: #ffffff !important;
+                padding: 4px 12px !important;
+                border-radius: 12px !important;
+                border: 1px solid #e2e8f0 !important;
+            }
+            #calendarCaptureClone .logo-icon {
+                width: 52px !important;
+                height: 36px !important;
+                background-image: url('/images/logo-marcomej.png') !important;
+                background-size: contain !important;
+                background-position: center !important;
+                background-repeat: no-repeat !important;
+                display: inline-block !important;
+                border-radius: 8px !important;
+            }
+            #calendarCaptureClone .logo-accent {
+                color: #E7007F !important;
+            }
+            #calendarCaptureClone .event-block {
+                border-radius: 6px !important;
+                padding: 4px 8px !important;
+                margin-bottom: 4px !important;
+                font-size: 0.75rem !important;
+                font-weight: 600 !important;
+                border-left-width: 3.5px !important;
+                border-left-style: solid !important;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+                display: block !important;
+            }
+            #calendarCaptureClone .event-title {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+            }
+            #calendarCaptureClone .event-meta {
+                font-size: 0.7rem !important;
+                margin-top: 4px !important;
+                opacity: 0.8 !important;
+            }
+            #calendarCaptureClone .status-badge {
+                padding: 2px 6px !important;
+                border-radius: 4px !important;
+                font-size: 0.65rem !important;
+                font-weight: 600 !important;
+            }
+            #calendarCaptureClone #captureReportHeader {
+                display: block !important;
+                padding: 24px 28px 20px !important;
+                border-bottom: 2px solid #e2e8f0 !important;
+                background-color: #ffffff !important;
+                width: 100% !important;
+            }
+            #calendarCaptureClone #captureReportFooter {
+                display: flex !important;
+                padding: 14px 28px !important;
+                border-top: 1px solid #e2e8f0 !important;
+                background-color: #f8fafc !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                font-size: 0.85rem !important;
+                color: #64748b !important;
+                width: 100% !important;
+            }
+        `;
+        clone.prepend(captureStyle);
 
         // Clean up unstarred regional buttons
         clone.querySelectorAll('.event-block form button').forEach(btn => {
@@ -549,10 +866,9 @@
                 clone.remove();
                 document.body.style.overflowX = prevBodyOverflow;
 
-                // Filename format: Marcom_East_Java_Branch_Calendar_September_2026.png
+                // Filename format: Marcom_East_Java_Branch_Calendar_Month_September_2026.png
                 const calendarType = "{{ request()->routeIs('events.regional_calendar') ? 'Regional' : 'Branch' }}";
-                const monthName = "{{ $baseDate->format('F_Y') }}";
-                const fileName = `Marcom_East_Java_${calendarType}_Calendar_${monthName}.png`;
+                const fileName = `Marcom_East_Java_${calendarType}_Calendar_{{ $fileDateSuffix }}.png`;
 
                 // Use toBlob for maximum mobile browser compatibility & low memory footprint
                 canvas.toBlob(blob => {
@@ -575,7 +891,7 @@
                         title: 'Capture Berhasil!',
                         html: `
                             <p style="margin-bottom: 12px; font-size: 0.95rem; color: var(--text-secondary);">
-                                Kalender bulan <strong>{{ $baseDate->format("F Y") }}</strong> telah berhasil di-capture dalam resolusi tinggi.
+                                Kalender <strong>{{ $viewPeriodText }}</strong> telah berhasil di-capture dalam resolusi tinggi.
                             </p>
                             <div style="border-radius: 10px; overflow: hidden; border: 1px solid var(--border-color); max-height: 200px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 16px; background: #f8fafc;">
                                 <img src="${blobUrl}" alt="Calendar Preview" style="width: 100%; height: auto; display: block;">
