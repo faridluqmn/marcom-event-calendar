@@ -201,15 +201,15 @@
                 scales: {
                     y: {
                         beginAtZero: true,
+                        min: 0,
+                        max: 1000,
                         ticks: {
+                            stepSize: 200,
                             callback: function(value, index, values) {
                                 if (value >= 1000000) {
                                     return (value / 1000000) + 'M pcs';
                                 }
-                                if (value >= 1000) {
-                                    return (value / 1000) + 'K pcs';
-                                }
-                                return value + ' pcs';
+                                return new Intl.NumberFormat('id-ID').format(value) + ' pcs';
                             }
                         }
                     }
