@@ -296,8 +296,9 @@
         `;
 
         if (isAdmin && result === null) {
+            const escapedName = name.replace(/'/g, "\\'");
             htmlContent += `
-                <button onclick="promptResult(${eventId}, '${name}')" class="btn-primary" style="width: 100%; justify-content: center; background-color: #10b981; border-color: #10b981; padding: 12px; font-size: 1rem;">
+                <button onclick="promptResult(${eventId}, '${escapedName}')" class="btn-primary" style="width: 100%; justify-content: center; background-color: #10b981; border-color: #10b981; padding: 12px; font-size: 1rem;">
                     Input Result Now
                 </button>
             `;

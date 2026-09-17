@@ -42,6 +42,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/events', [EventController::class, 'index'])->name('events.index');
         Route::get('/events/regional-calendar', [EventController::class, 'regionalCalendar'])->name('events.regional_calendar');
         
+        Route::get('/events/branch-list', [EventController::class, 'branchIndex'])->name('events.branch_list');
         Route::get('/events/regional', [EventController::class, 'regionalIndex'])->name('events.regional.index');
         Route::post('/events/regional/remove', [EventController::class, 'removeBulkRegional'])->name('events.regional.remove');
         
@@ -50,5 +51,8 @@ Route::middleware('auth')->group(function () {
             
         Route::patch('/events/{event}/result', [EventController::class, 'updateResult'])
             ->name('events.result');
+
+        Route::delete('/events/{event}', [EventController::class, 'destroy'])
+            ->name('events.destroy');
     });
 });

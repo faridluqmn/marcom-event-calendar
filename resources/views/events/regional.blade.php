@@ -27,7 +27,9 @@
                     <th>Brand</th>
                     <th>Marcom</th>
                     <th>Estimation</th>
+                    <th>Actual Result</th>
                     <th>Status</th>
+                    <th style="text-align: center; width: 140px;">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -37,22 +39,48 @@
                             <input type="checkbox" name="event_ids[]" value="{{ $event->id }}" class="event-checkbox" style="cursor: pointer;">
                         </td>
                         <td>{{ $event->start_date->format('d M Y') }}</td>
-                        <td style="font-weight: 600;">{{ $event->name }}</td>
+                        <td>
+                            <div style="font-weight: 600; color: var(--text-primary);">{{ $event->name }}</div>
+                            @if($event->location)
+                                <small style="color: var(--text-secondary);">📍 {{ $event->location }}</small>
+                            @endif
+                        </td>
                         <td>{{ $event->branch->name }}</td>
                         <td>{{ $event->brand->name }}</td>
                         <td>{{ $event->marcom->name }}</td>
-                        <td>{{ number_format($event->estimation, 0, ',', '.') }} pcs</td>
+                        <td style="font-weight: 500;">{{ number_format($event->estimation, 0, ',', '.') }} pcs</td>
+                        <td>
+                            @if($event->result !== null)
+                                <span style="font-weight: 600; color: #10b981;">{{ number_format($event->result, 0, ',', '.') }} pcs</span>
+                            @else
+                                <span style="color: var(--text-secondary); font-style: italic;">-</span>
+                            @endif
+                        </td>
                         <td>
                             @if($event->result === null)
                                 <span class="status-badge status-pending">Pending</span>
-                                @if(Auth::user()->role === 'admin')
-                                    <button type="button" onclick="promptResult({{ $event->id }}, '{{ addslashes($event->name) }}')" style="background: var(--event-green-bg); color: var(--event-green-text); border: 1px solid var(--event-green-text); border-radius: 4px; padding: 2px 8px; font-size: 0.75rem; cursor: pointer; font-weight: 600; margin-left: 8px;">Input Result</button>
-                                @endif
                             @elseif($event->result >= $event->estimation)
                                 <span class="status-badge status-achieved">Achieved</span>
                             @else
                                 <span class="status-badge status-not-achieved">Not Achieved</span>
                             @endif
+                        </td>
+                        <td style="text-align: center;">
+                            <div style="display: inline-flex; gap: 6px; align-items: center;">
+                                @if($event->result === null)
+                                    <button type="button" onclick="promptResult({{ $event->id }}, '{{ addslashes($event->name) }}', '')" style="background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;" title="Input Actual Result">
+                                        <span>➕</span> Result
+                                    </button>
+                                @else
+                                    <button type="button" onclick="promptResult({{ $event->id }}, '{{ addslashes($event->name) }}', {{ $event->result }})" style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;" title="Edit Actual Result">
+                                        <span>✏️</span> Edit
+                                    </button>
+                                @endif
+
+                                <button type="button" onclick="confirmDeleteEvent({{ $event->id }}, '{{ addslashes($event->name) }}')" style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;" title="Delete Event">
+                                    <span>🗑️</span>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 @endforeach
@@ -82,7 +110,7 @@
             "order": [], // Disable initial sorting
             "pageLength": 10,
             "columnDefs": [
-                { "orderable": false, "targets": 0 } // Disable sorting on checkbox column
+                { "orderable": false, "targets": [0, 9] } // Disable sorting on checkbox & actions columns
             ],
             "language": {
                 "search": "Filter events:",
@@ -115,7 +143,7 @@
 
         Swal.fire({
             title: 'Are you sure?',
-            text: "You are about to remove " + selected.length + " event(s) from the Regional tab.",
+            text: "You are about to remove " + selected.length + " event(s) from Regional.",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#ef4444',
@@ -128,10 +156,12 @@
         });
     });
 
-    function promptResult(eventId, eventName) {
+    function promptResult(eventId, eventName, currentResult) {
+        const isEditing = currentResult !== '' && currentResult !== null && currentResult !== undefined;
         Swal.fire({
-            title: 'Input Result for ' + eventName,
+            title: (isEditing ? 'Edit Result: ' : 'Input Result: ') + eventName,
             input: 'number',
+            inputValue: isEditing ? currentResult : '',
             inputLabel: 'Actual Result (pcs)',
             inputPlaceholder: 'e.g. 1500',
             inputAttributes: {
@@ -143,8 +173,8 @@
             confirmButtonColor: '#10b981',
             showLoaderOnConfirm: true,
             preConfirm: (resultValue) => {
-                if (!resultValue) {
-                    Swal.showValidationMessage('Result is required');
+                if (resultValue === '' || resultValue === null) {
+                    Swal.showValidationMessage('Actual Result is required');
                     return false;
                 }
                 
@@ -170,6 +200,40 @@
                 resultInput.name = 'result';
                 resultInput.value = resultValue;
                 form.appendChild(resultInput);
+                
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+    }
+
+    function confirmDeleteEvent(eventId, eventName) {
+        Swal.fire({
+            title: 'Delete Event?',
+            text: `Are you sure you want to delete "${eventName}"? This action cannot be undone.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Yes, Delete',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/events/${eventId}`;
+                
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = '_token';
+                csrfInput.value = '{{ csrf_token() }}';
+                form.appendChild(csrfInput);
+                
+                const methodInput = document.createElement('input');
+                methodInput.type = 'hidden';
+                methodInput.name = '_method';
+                methodInput.value = 'DELETE';
+                form.appendChild(methodInput);
                 
                 document.body.appendChild(form);
                 form.submit();

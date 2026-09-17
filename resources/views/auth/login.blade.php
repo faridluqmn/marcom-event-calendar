@@ -23,7 +23,7 @@
         @csrf
         <div class="form-group">
             <label class="form-label">Email address</label>
-            <input type="email" name="email" class="form-control" value="{{ old('email') }}" required autofocus placeholder="name@example.com">
+            <input type="email" name="email" class="form-control" value="{{ old('email') }}" required autofocus placeholder="role@marcom.com">
         </div>
         
         <div class="form-group">

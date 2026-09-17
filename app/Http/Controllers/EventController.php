@@ -191,6 +191,15 @@ class EventController extends Controller
         return view('user.dashboard', compact('marcoms', 'branches', 'brands'));
     }
 
+    public function branchIndex()
+    {
+        $events = Event::with(['branch', 'brand', 'marcom'])
+            ->orderBy('start_date', 'desc')
+            ->get();
+
+        return view('events.branch_list', compact('events'));
+    }
+
     public function regionalIndex()
     {
         $regionalEvents = Event::with(['branch', 'brand', 'marcom'])
@@ -233,5 +242,12 @@ class EventController extends Controller
         ]);
 
         return back()->with('success', 'Event result updated successfully.');
+    }
+
+    public function destroy(Event $event)
+    {
+        $event->delete();
+
+        return back()->with('success', 'Event deleted successfully.');
     }
 }

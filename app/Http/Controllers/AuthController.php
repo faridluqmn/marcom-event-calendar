@@ -53,21 +53,8 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:4', 'confirmed'],
+        return back()->withErrors([
+            'registration' => 'Pendaftaran akun baru saat ini dinonaktifkan. Silakan hubungi Administrator.',
         ]);
-
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => 'user', // default role
-        ]);
-
-        Auth::login($user);
-
-        return redirect()->route('user.dashboard');
     }
 }

@@ -276,6 +276,20 @@ body {
     background-color: var(--primary-color-hover);
 }
 
+.btn-primary:disabled,
+.btn-primary[disabled] {
+    background-color: #9ca3af;
+    border-color: #9ca3af;
+    color: #ffffff;
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+.btn-primary:disabled:hover,
+.btn-primary[disabled]:hover {
+    background-color: #9ca3af;
+}
+
 .btn-secondary {
     background-color: #ffffff;
     color: var(--text-primary);

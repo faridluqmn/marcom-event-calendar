@@ -52,10 +52,26 @@
                         </a>
                     </div>
                 </div>
-                <a href="{{ route('events.regional.index') }}" class="nav-item {{ request()->routeIs('events.regional.index') ? 'active' : '' }}">
-                    <span class="nav-icon">📋</span>
-                    Regional List
-                </a>
+                @php
+                    $isListsActive = request()->routeIs('events.branch_list', 'events.regional.index');
+                @endphp
+                <div class="nav-group">
+                    <button class="nav-item" onclick="toggleSidebarMenu('listsMenu', 'listsArrow')" style="width: 100%; justify-content: space-between; display: flex;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span class="nav-icon">📋</span>
+                            Event Lists
+                        </div>
+                        <svg id="listsArrow" style="transition: transform 0.3s ease; transform: rotate({{ $isListsActive ? '180deg' : '0deg' }});" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                    </button>
+                    <div id="listsMenu" style="display: flex; flex-direction: column; padding-left: 36px; gap: 4px; overflow: hidden; transition: all 0.3s ease; max-height: {{ $isListsActive ? '200px' : '0' }}; opacity: {{ $isListsActive ? '1' : '0' }}; margin-top: {{ $isListsActive ? '4px' : '0' }};">
+                        <a href="{{ route('events.branch_list') }}" class="nav-item {{ request()->routeIs('events.branch_list') ? 'active' : '' }}" style="padding: 8px 16px; font-size: 0.9rem;">
+                            🏢 Branch List
+                        </a>
+                        <a href="{{ route('events.regional.index') }}" class="nav-item {{ request()->routeIs('events.regional.index') ? 'active' : '' }}" style="padding: 8px 16px; font-size: 0.9rem;">
+                            🌐 Regional List
+                        </a>
+                    </div>
+                </div>
             </nav>
 
             <div class="sidebar-footer">
